@@ -1,0 +1,19 @@
+doctype html
+html(lang='en')
+
+    head
+        title movie texture study
+        link(rel="icon" href="favicon.ico")
+        //script(type="text/javascript" src="js/minMatrix.js")
+        //script(type="text/javascript" src="js/inflate.min.js")
+        //link(type="text/css", href="")
+        //script(type="text/javascript" src="js/WebGL.js")
+        script(type="text/javascript" src="js/webgl.js")
+
+
+    body
+        video(id="videoTexture" muted autoplay playsinline loop crossOrigin="anonymous" webkit-playsinline style="display:none")
+            //source src="textures/sintel.ogv" type='video/ogg; codecs="theora, vorbis"')
+            source(src="images/movie0_webgl.mp4" type='video/mp4')
+        canvas#main
+        //p#log(style="position:absolute; left:0; top:0; color:#000; size:20px;")
