@@ -3,24 +3,32 @@ const outputDir = "docs";
 const path = require("path");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
+const env = process.env.NODE_ENV || 'development'
+const isDevelopment = env === 'development'
 const MODE = 'development';
 const enabledSourceMap = (MODE === 'development');
 
 module.exports = {
-    // モード値を production に設定すると最適化された状態で、
-    // development に設定するとソースマップ有効でJSファイルが出力される
-    mode: MODE,
-
-    entry: './src/ts/main.ts',
+    mode: 'development',
     output: {
-        path: `${__dirname}/`+outputDir,
-        filename: 'js/webgl.js'
+        path: __dirname + '/docs',
+        filename: '[name]'
+    },
+    entry: {
+        'js/main.js': './src/ts/main.ts',
+        'js/childMain.js': './src/ts/childMain.ts',
     },
 
     plugins: [
         new HtmlWebpackPlugin({
             filename: 'index.html',
             template: 'src/pug/main.pug',
+            inject: false
+        }),
+
+        new HtmlWebpackPlugin({
+            filename: 'window.html',
+            template: 'src/pug/window.pug',
             inject: false
         })
     ],

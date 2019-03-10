@@ -7,7 +7,6 @@ export default class CurlNoise
 {
 
     simplex:Simplex;
-
     constructor()
     {
         this.simplex = new Simplex();
