@@ -17,7 +17,7 @@ window.onload = function () {
       developMode:true,
       pixelRatio:1
   });
-  const scene = new TestScene(scenemanager);
+  const scene = new TestScene(scenemanager,p);
 
   scenemanager.addScene(scene);
   scenemanager.update();

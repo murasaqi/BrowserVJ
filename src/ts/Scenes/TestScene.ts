@@ -6,11 +6,14 @@ import {TweenMax, Power1, TimelineLite} from "gsap/TweenMax";
 import CurlNoise from "../vThree/utils/CurlNoise";
 import {GetCameraDistanceWithHeightSize, GetCameraDistanceWithWidthSize} from "../vThree/utils/CameraHelpers";
 import SceneManage from "../vThree/SceneManager";
+import PopUpWindowManager from "./PopUpWindowManager";
 
 export default class TestScene extends BaseScene {
 
-    constructor(sceneManger: SceneManage) {
+    popupWindowManager:PopUpWindowManager;
+    constructor(sceneManger: SceneManage, popUpManager:PopUpWindowManager) {
         super(sceneManger);
+        this.popupWindowManager = popUpManager;
 
         this.init();
     }
@@ -47,6 +50,10 @@ export default class TestScene extends BaseScene {
     onKeyDown = (e) => {
 
         console.log(e);
+        if(e.key == "u")
+        {
+            this.popupWindowManager.popUps[0].setImg(this.sceneManager.canvas.toDataURL())
+        }
 
 };
 
