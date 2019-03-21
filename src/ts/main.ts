@@ -12,6 +12,16 @@ window.onload = function () {
 
   const p = new PopupWindowManager();
 
+  const scenemanager = new SceneManager({
+      debugCameraMode:false,
+      developMode:true,
+      pixelRatio:1
+  });
+  const scene = new TestScene(scenemanager);
+
+  scenemanager.addScene(scene);
+  scenemanager.update();
+
 };
 
 

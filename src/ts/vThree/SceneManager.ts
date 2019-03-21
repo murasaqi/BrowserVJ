@@ -34,7 +34,7 @@ export default class SceneManager{
 
     offScreenFs:any;
     offScreenVs:any;
-    constructor(parameter:any)
+    constructor(parameter:{canvasId?:string,resolution?:{x:number,y:number},debugCameraMode?:boolean,developMode?:boolean, pixelRatio?:number})
     {
 
         this.canvasId =parameter.canvasId ? parameter.canvasId : null;
@@ -50,9 +50,18 @@ export default class SceneManager{
 
 
 
-        this.width = parameter.width || window.innerWidth;
-        this.height = parameter.height || window.innerHeight;
-        this.isAbsoluteResolution = !!(parameter.width || parameter.height);
+        if(parameter.resolution)
+        {
+            this.width = parameter.resolution.x;
+            this.height = parameter.resolution.y;
+            this.isAbsoluteResolution = true;
+        }
+        else
+        {
+            this.width = window.innerWidth;
+            this.height = window.innerHeight;
+        }
+
 
         if(this.canvas)
         {
@@ -74,7 +83,7 @@ export default class SceneManager{
         this.renderer.setClearAlpha(0.0);
 
         this.debugCamera = new THREE.PerspectiveCamera(70,this.width/this.height,0.1,10000);
-        this.debugCameraMode = parameter.debugCameraMode ? parameter.debudebugCameraModegCamera : false;
+        this.debugCameraMode = parameter.debugCameraMode ? parameter.debugCameraMode : false;
         this.developMode = parameter.developMode ? parameter.developMode : false;
         this.activeCamera = null;
         this.frameCount = 0;
@@ -259,19 +268,11 @@ export default class SceneManager{
     resize =(width:number, height:number)=>
     {
 
-        // if(this.isAbsoluteResolution) return;
         this.debugCamera.aspect = width / height;
         this.debugCamera.updateProjectionMatrix();
         let dpr = this.renderer.getPixelRatio();
         this.renderer.setSize( width, height );
-        // this.absoluteResolution.set(window.innerWidth*dpr, window.innerHeight*dpr);
-        // this.offScreenTarget.setSize(window.innerWidth*dpr, window.innerHeight*dpr);
-        // if(this.scenes.length > 0)
-        // {
-            this.currentScene.onWindowResize(width,height);
-        // }
-
-        // console.log("Width: " + width, " height: " + height);
+        this.currentScene.onWindowResize(width,height);
     };
 
     onClick(e)

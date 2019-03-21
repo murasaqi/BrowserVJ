@@ -12,7 +12,7 @@ class PopUpWindow
     constructor()
     {
         this.position = new THREE.Vector2(500,500);
-        this.window = window.open('window.html', 'width='+this.width+', height='+this.height+', menubar=no, toolbar=no, scrollbars=yes');
+        this.window = window.open('window.html', 'mywindow1', 'width=400, status=no, height=300, menubar=no, toolbar=no,directions=no, scrollbars=no, title=no, location=no');
         this.window.moveTo(this.position.x,this.position.y);
     }
 
@@ -23,12 +23,14 @@ class PopUpWindow
 }
 export default class PopUpWindowManager
 {
-    popUp;
+    popUps:PopUpWindow[] = [];
     constructor()
     {
 
+
+        // this.popUps = window.open('window.html', 'mywindow1', 'width=400, height=300, menubar=no, toolbar=no, scrollbars=yes');
+        this.popUps.push(new PopUpWindow());
         this.update();
-        this.popUp = window.open('window.html', 'mywindow1', 'width=400, height=300, menubar=no, toolbar=no, scrollbars=yes');
     }
     init()
     {
@@ -37,9 +39,9 @@ export default class PopUpWindowManager
 
     update=()=>
     {
-        let x = this.popUp.screenX;
-        let y = this.popUp.screenY;
 
+        // let x = this.popUp.screenY;pUp.screenX;
+        // let y = this.po
 
         requestAnimationFrame(this.update);
     };
