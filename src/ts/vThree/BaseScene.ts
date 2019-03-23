@@ -48,6 +48,7 @@ export default class BaseScene {
 
     private useOffScreen:boolean = false;
 
+
     constructor(scenemanager: SceneManager) {
         // utils
         this.sceneManager = scenemanager;

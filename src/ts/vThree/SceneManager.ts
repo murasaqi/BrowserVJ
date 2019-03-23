@@ -34,6 +34,7 @@ export default class SceneManager{
 
     offScreenFs:any;
     offScreenVs:any;
+    dpr:number;
     constructor(parameter:{canvasId?:string,resolution?:{x:number,y:number},debugCameraMode?:boolean,developMode?:boolean, pixelRatio?:number})
     {
 
@@ -94,6 +95,7 @@ export default class SceneManager{
         this.clock.autoStart = true;
         this.clock.start();
         const pixelRatio = parameter.pixelRatio ? parameter.pixelRatio : null;
+        this.dpr = parameter.pixelRatio;
         this.init(pixelRatio);
     }
 

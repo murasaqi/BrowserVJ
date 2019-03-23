@@ -28,6 +28,18 @@ export function createFullScreenTexturePlane(texture:THREE.Texture,fs?:any): THR
 }
 
 
+export function createRenderTargetPlane(texture:THREE.Texture,width:number,height:number): THREE.Mesh {
+    const geo = new THREE.PlaneBufferGeometry(width,height);
+    const mat = new THREE.MeshBasicMaterial({
+        transparent:true,
+        map:texture
+    });
+
+    return new THREE.Mesh(geo,mat);
+
+}
+
+
 export function createCustumShaderPlane(vs:any,fs:any): THREE.Mesh {
     const geo = new THREE.PlaneBufferGeometry(2,2);
     const uniforms = { time: { value: 0.0 } };

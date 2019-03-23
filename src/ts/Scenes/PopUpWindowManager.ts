@@ -11,8 +11,15 @@ export default class PopUpWindowManager
 
 
         // this.popUps = window.open('window.html', 'mywindow1', 'width=400, height=300, menubar=no, toolbar=no, scrollbars=yes');
-        this.popUps.push(new PopUpWindow());
+
         this.update();
+    }
+
+    addWindow()
+    {
+        var w = new PopUpWindow(this.popUps.length);
+        this.popUps.push(w);
+        return w;
     }
     init()
     {
