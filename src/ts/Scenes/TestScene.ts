@@ -5,11 +5,15 @@ import {createRenderTarget, createRenderTargetPlane} from "../vThree/OffScreenMa
 import {TweenMax, Power1, TimelineLite} from "gsap/TweenMax";
 import CurlNoise from "../vThree/utils/CurlNoise";
 import {GetCameraDistanceWithHeightSize, GetCameraDistanceWithWidthSize} from "../vThree/utils/CameraHelpers";
+import {Base64ToTexture} from "../vThree/utils/Graphics";
 import SceneManage from "../vThree/SceneManager";
 import PopUpWindowManager from "./PopUpWindowManager";
 import ChildRenderer from "./ChildRenderer";
 import set = Reflect.set;
 import CarpetMesh from "./CarpetMesh";
+
+
+const gradImage00 = require("../imgs/grad00.jpg");
 
 export default class TestScene extends BaseScene {
 
@@ -22,14 +26,21 @@ export default class TestScene extends BaseScene {
     resultCamera:THREE.OrthographicCamera;
     resultScene:THREE.Scene;
     resultPlane:THREE.Mesh;
-    carpetMesh:CarpetMesh;
+    carpetMeshs:CarpetMesh[] = [];
+
+
+    grad:THREE.Texture;
     constructor(sceneManger: SceneManage, popUpManager:PopUpWindowManager) {
         super(sceneManger);
 
         this.popupWindowManager = popUpManager;
 
+
+        const loader = new THREE.TextureLoader();
+
         this.init();
-        // this.initChildWindow();
+
+
     }
 
     initChildWindow()
@@ -51,18 +62,51 @@ export default class TestScene extends BaseScene {
     init() {
 
 
+
+
+
+
+
+
+
+        console.log(gradImage00);
         var light = new THREE.DirectionalLight(0xffffff,1);
-        light.position.set(0,1,1);
+
+        light.position.set(0,10,0);
         this.mainScene.add(light);
 
-
+        this.mainScene.add(new THREE.AmbientLight(0xffffff,0.5));
         // this.mainCamera.aspect = window.innerWidth/window.innerHeight;
 
-        this.mainCamera.position.set(0,0,GetCameraDistanceWithWidthSize(this.mainCamera,1024));
+        this.mainCamera.position.set(0,50,GetCameraDistanceWithWidthSize(this.mainCamera,1024));
+        this.mainCamera.lookAt(new THREE.Vector3(0,0,0));
         this.initPostScene();
 
+        const loader = new THREE.TextureLoader();
 
-        this.carpetMesh = new CarpetMesh(this.mainScene);
+
+        this.grad = loader.load("./529d55251b98dae3a508f995409467bf.jpg",()=>{
+
+            for (let i = 0; i < 5; i++)
+            {
+                this.carpetMeshs.push(new CarpetMesh(this.mainScene,
+                    new THREE.Vector3(
+                        -300,
+                        this.randomValue*30,
+                        this.randomValue*400
+                    ),
+                    // new THREE.Vector3(Math.random() +0.1,Math.random() +0.1,Math.random() +0.1)
+                    new THREE.Vector3(Math.random()*0.5 +0.1,Math.random() +0.2,Math.random()*0.5 +0.1),
+                    this.grad
+                ))
+
+                // this.carpetMeshs[this.carpetMeshs.length-1].mesh.setRotationFromAxisAngle(new THREE.Vector3(this.randomValue,this.randomValue,this.randomValue).normalize(),this.randomValue * 360);
+
+            }
+
+        });
+
+
 
        }
 
@@ -124,11 +168,16 @@ export default class TestScene extends BaseScene {
     }
 
 
+
+
     update(time: number) {
 
         this.frameCount ++;
 
-        this.carpetMesh.update();
+
+        this.carpetMeshs.forEach(c=> c.update());
+        // this.carpetMeshs.forEach(c=> c.setTexture(this.grad));
+
     }
 
     render() {

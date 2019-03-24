@@ -9,16 +9,25 @@ import {GetCameraDistanceWithHeightSize, GetCameraDistanceWithWidthSize} from ".
 import SceneManage from "../vThree/SceneManager";
 import PopUpWindowManager from "./PopUpWindowManager";
 import ChildRenderer from "./ChildRenderer";
-import {Vector3} from "three";
-import {posix} from "path";
+import Simplex from "perlin-simplex";
 
-class leftRecordPosition
+
+class RecordPosition
 {
+    maxRecordCount = 500;
     current:THREE.Vector3;
     record:THREE.Vector3[] = [];
     constructor(position:THREE.Vector3)
     {
-        this.update(position);
+
+        for(let i = 0; i < this.maxRecordCount; i++)
+        {
+            this.record.unshift(position.clone());
+        }
+
+        this.current = position;
+
+
     }
 
     update(position:THREE.Vector3)
@@ -36,85 +45,146 @@ class leftRecordPosition
         return this.record[this.record.length-1];
     }
 }
+
+class Row
+{
+    positions:THREE.Vector3[] = [];
+    debugMeshs:THREE.Mesh[] = [];
+    recordPositions:RecordPosition;
+    constructor(startPosition:THREE.Vector3)
+    {
+        this.init(startPosition);
+    }
+
+    add(position:THREE.Vector3,debugMesh:THREE.Mesh)
+    {
+        //@ts-ignore
+        debugMesh.material.visible = false;
+        this.positions.push(position);
+        this.debugMeshs.push(debugMesh);
+    }
+
+    init(startPosition:THREE.Vector3)
+    {
+
+        this.recordPositions = new RecordPosition(startPosition)
+
+
+    }
+
+    update(newPosition:THREE.Vector3)
+    {
+        this.recordPositions.update(new THREE.Vector3(
+            newPosition.x,
+            newPosition.y,
+            newPosition.z
+        ));
+
+
+        let delayStep = 16;
+
+        for(let i = 0; i < this.debugMeshs.length;i++)
+        {
+            if(i * delayStep < this.recordPositions.record.length)
+            {
+
+                const recordNum = i * delayStep;
+                this.debugMeshs[i].position.set(
+                    this.recordPositions.record[recordNum].x,
+                    this.recordPositions.record[recordNum].y,
+                    this.recordPositions.record[recordNum].z,
+                )
+            }
+
+        }
+
+    }
+}
+
 export default class CarpetMesh
 {
     scene:THREE.Scene;
-    leftRecordPosition:leftRecordPosition;
-    rightRecordPosition:leftRecordPosition;
+    // leftRecordPosition:leftRecordPosition;
+    // rightRecordPosition:leftRecordPosition;
     time:number = 0;
-    leftMeshs:THREE.Mesh[] = [];
-    rightMeshs:THREE.Mesh[] = [];
+    // leftMeshs:THREE.Mesh[] = [];
+    // rightMeshs:THREE.Mesh[] = [];
+    rows:Row[] = [];
     curlNoise:CurlNoise;
-    planeGeometry:THREE.BufferGeometry;
+    planeGeometry:THREE.PlaneBufferGeometry;
     planeMat:THREE.MeshBasicMaterial;
-    planeMesh:THREE.Mesh;
-    constructor(scene)
+    mesh:THREE.Mesh;
+    simplex:Simplex = new Simplex();
+    startPosition:THREE.Vector3;
+    speed:THREE.Vector3;
+    tex:THREE.Texture;
+    constructor(scene, startPosition?:THREE.Vector3,scale?:THREE.Vector3, tex?:THREE.Texture)
     {
+
+
+        this.tex= tex;
+        this.speed = new THREE.Vector3(
+            Math.random() * 0.02 + 0.005,
+            Math.random() * 0.01 + 0.005,
+            Math.random() * 0.01 + 0.005,
+        )
+
+        this.startPosition = startPosition || new THREE.Vector3(0,0,0);
+        console.log(this.simplex);
         this.curlNoise = new CurlNoise();
         this.scene = scene;
 
-        var x = 300;
-        var y = 0;
-        var z = 0;
-        for (let i = 0; i < 12; i++)
+        let xStep = 20*scale.x;
+        let zStep = 20*scale.z;
+        let rowCount = 20;
+        let zCount = 8;
+        var x = this.startPosition.x - ( xStep * (rowCount+1)) / 2;
+        var y =this.startPosition.z + ( zStep * (zCount+1)) / 2;
+        var z =  this.startPosition.z;
+
+
+        this.startPosition.set(x,y,z);
+
+        for(let r = 0; r < zCount; r++)
         {
-            x += 50;
-            var box = this.createBox();
+            for (let i = 0; i < rowCount; i++)
+            {
+                x += xStep;
+                var box = this.createBox();
 
-            if(i == 0)this.leftRecordPosition = new leftRecordPosition(new THREE.Vector3(
-                x,y,z
-            ));
-            box.position.set(
-                x,
-                y,
-                z
-            );
+                if(i == 0) this.rows.push(
+                    new Row(new THREE.Vector3(x,y,z)));
+                box.position.set(
+                    x,
+                    y,
+                    z
+                );
 
-            this.leftMeshs.push(box);
-            this.scene.add(box);
+                this.rows[this.rows.length-1].add(new THREE.Vector3(x,y,z),box);
+                this.scene.add(box);
 
+            }
+
+            x = this.startPosition.x;
+            z -= zStep;
         }
 
 
-        x = 0;
-        for (let i = 0; i < 12; i++)
-        {
-            z = -200;
-            x += 50;
+        this.planeGeometry = new THREE.PlaneBufferGeometry(8,8,19,7);
 
-            var box = this.createBox();
+        this.planeMat = new THREE.MeshPhongMaterial({color:0xffffff,side:THREE.DoubleSide,map:this.tex});
+        this.mesh = new THREE.Mesh(this.planeGeometry,this.planeMat);
 
-            if(i == 0)this.rightRecordPosition = new leftRecordPosition(new THREE.Vector3(
-                x,y,z
-            ));
-            box.position.set(
-                x,
-                y,
-                z
-            );
-
-            this.rightMeshs.push(box);
-            this.scene.add(box);
-
-        }
-
-
-        this.planeGeometry = new THREE.BufferGeometry();
-
-
-        this.planeMat = new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide});
-        this.planeMesh = new THREE.Mesh(this.planeGeometry,this.planeMat);
-
-        this.scene.add(this.planeMesh);
+        this.scene.add(this.mesh);
 
 
     }
 
 
-    createBox()
+    createBox(color?)
     {
         var geo = new THREE.BoxBufferGeometry(10,10,10);
-        var mat = new THREE.MeshLambertMaterial({color:0xffffff});
+        var mat = new THREE.MeshLambertMaterial({color:color || 0xffffff});
 
         return new THREE.Mesh(geo,mat);
     }
@@ -122,49 +192,19 @@ export default class CarpetMesh
     update() {
 
         this.time ++;
-        this.leftRecordPosition.update(new THREE.Vector3(
-            Math.sin(this.time * 0.03) * 400,
-            Math.sin(this.time * 0.02) * 300,
-            this.leftRecordPosition.current.z,
-        ));
 
-
-        this.rightRecordPosition.update(new THREE.Vector3(
-            Math.sin(this.time * 0.03) * 400,
-            Math.sin(this.time * 0.02) * 300,
-            this.rightRecordPosition.current.z,
-        ));
-
-        for(let i = 0; i < this.leftMeshs.length;i++)
+        for (let i = 0; i < this.rows.length; i++)
         {
-            if(i * 5 < this.leftRecordPosition.record.length)
-            {
-
-                const recordNum = i * 3;
-                this.leftMeshs[i].position.set(
-                    this.leftRecordPosition.record[recordNum].x,
-                    this.leftRecordPosition.record[recordNum].y,
-                    this.leftRecordPosition.record[recordNum].z,
-                )
-            }
-
-        }
-
-
-
-        for(let i = 0; i < this.rightMeshs.length;i++)
-        {
-            if(i * 5 < this.rightRecordPosition.record.length)
-            {
-
-                const recordNum = i * 3;
-                this.rightMeshs[i].position.set(
-                    this.rightRecordPosition.record[recordNum].x,
-                    this.rightRecordPosition.record[recordNum].y,
-                    this.rightRecordPosition.record[recordNum].z,
-                )
-            }
-
+            let w =  this.rows[i];
+            let noise = this.simplex.noise3d(
+                w.recordPositions.current.x*0.002 + this.startPosition.x,
+                w.recordPositions.current.y*0.002 + this.startPosition.y,
+                w.recordPositions.current.z*0.002) * 20 + this.startPosition.z;
+            w.update(new THREE.Vector3(
+                Math.cos(this.time * 0.005) * 400,
+                Math.sin(this.time * this.speed.y) * 100 + noise,
+                w.recordPositions.current.z,
+            ));
         }
 
         this.createPlaneMesh();
@@ -174,48 +214,67 @@ export default class CarpetMesh
 
     }
 
+    setTexture(texture:THREE.Texture)
+    {
+        this.planeMat.map = texture;
+        this.planeMat.map.needsUpdate = true;
+    }
+
+
     createPlaneMesh()
     {
 
-        if(this.rightMeshs.length < 4) return;
-        var indices = [];
-        var vertices = [];
-        var colors = [];
-        var size = 20;
-        var segments = 2;
-        var halfSize = size / 2;
-        var segmentSize = size / segments;
+        // if(this.rightMeshs.length < 4) return;
+        // var indices = [];
+        // var vertices = [];
+        // var colors = [];
 
-        this.planeGeometry.dispose();
+        // this.planeGeometry.dispose();dispose
+        // this.planeGeometry = new THREE.PlaneBufferGeometry(8,8,8,8);
         // generate vertices, normals and color data for a simple grid geometry
-       for (let i = 0; i < this.leftMeshs.length; i++)
-       {
-
-
-           let r = this.rightMeshs[i].position;
-           vertices.push(r.x,r.y,r.z);
-
-           let l = this.leftMeshs[i].position;
-
-           vertices.push(l.x,l.y,l.z);
-
-
-           console.log(l.z,r.z);
-       }
+       // for (let i = 0; i < this.rows[0].debugMeshs.length; i++)
+       // {
+       //
+       //
+       //     for(let rowCount = 0; rowCount < this.rows.length; rowCount++)
+       //     {
+       //         let r = this.rows[rowCount].debugMeshs[i].position;
+       //         vertices.push(r.x,r.y,r.z);
+       //
+       //     }
+       //
+       // }
         // generate indices (data for element array buffer)
-        for(let i = 0; i < (vertices.length/3)-2; i+=2)
-        {
-            indices.push(i,i+2,i+1);
-            indices.push(i+2,i+3,i+1);
-        }
 
+        let step = this.rows.length;
+        //@ts-ignore
+        let vertices = this.planeGeometry.attributes.position.array;
+        //@ts-ignore
+        this.planeGeometry.dynamic = true;
+        // console.log/(vertices);
+        let count = 0;
+       for (let i = 0;  i < this.rows.length; i++)
+       {
+           for (let k = 0; k < this.rows[i].debugMeshs.length; k++)
+           {
+               vertices[count] = this.rows[i].debugMeshs[k].position.x;
+               count++;
+               vertices[count] = this.rows[i].debugMeshs[k].position.y;
+               count++;
+               vertices[count] = this.rows[i].debugMeshs[k].position.z;
+               count++;
+           }
+       }
+       // console.log(count);
         //
-        this.planeGeometry.setIndex( indices );
-        this.planeGeometry.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
-        this.planeGeometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+        // this.planeGeometry.setIndex( indices );
+        // this.planeGeometry.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+        // this.planeGeometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
 
 
         this.planeGeometry.computeVertexNormals();
+        //@ts-ignore
+        this.planeGeometry.attributes.position.needsUpdate = true;
         // this.planeGeometry.index.needsUpdate = true;
 
     }

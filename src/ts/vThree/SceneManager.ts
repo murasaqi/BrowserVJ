@@ -1,6 +1,6 @@
 'use strict';
 import * as THREE from 'three'
-// import "imports-loader?THREE=three!three/examples/js/controls/OrbitControls.js";
+import "imports-loader?THREE=three!three/examples/js/controls/OrbitControls.js";
 import BaseScene from "./BaseScene";
 import GUI from "./gui/Gui";
 
@@ -21,7 +21,7 @@ export default class SceneManager{
     frameCount:number;
     scenes:BaseScene[];
     sceneNum:number;
-    controls:THREE.OrbitControls;
+    controls:THREE.OrbitControls = null;
     canvas:any;
     clock:THREE.Clock;
     timer:Timer;
@@ -97,6 +97,17 @@ export default class SceneManager{
         const pixelRatio = parameter.pixelRatio ? parameter.pixelRatio : null;
         this.dpr = parameter.pixelRatio;
         this.init(pixelRatio);
+
+
+        // if(parameter.debugCameraMode)
+        // {
+            this.controls = new THREE.OrbitControls( this.debugCamera, this.renderer.domElement );
+            // this.controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+            this.controls.dampingFactor = 0.25;
+            // this.controls.screenSpacePanning = false;
+            this.controls.minDistance = 10;
+            this.controls.maxDistance = 1000;
+        // }
     }
 
     init(pixelRatio?:number)
@@ -111,7 +122,7 @@ export default class SceneManager{
             window.addEventListener('mouseup',this.onMouseUp);
             window.addEventListener('mousemove',this.onMouseMove);
         }
-        this.debugCamera.position.set(0,-50,10);
+        this.debugCamera.position.set(0,0,100);
         if(pixelRatio) this.renderer.setPixelRatio(pixelRatio);
         this.renderer.gammaInput = true;
         this.renderer.gammaOutput = true;
@@ -298,6 +309,7 @@ export default class SceneManager{
         this.currentScene.update(this.clock.getElapsedTime());
 
         if (this.debugCameraMode) {
+            if(this.controls != null)this.controls.update();
             this.renderer.render(this.currentScene.mainScene, this.debugCamera);
         } else {
             this.currentScene.render();
