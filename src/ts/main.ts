@@ -8,6 +8,7 @@ declare function require(x: string): any;
 import PopupWindowManager from "./Scenes/PopUpWindowManager";
 import SceneManager from "./vThree/SceneManager";
 import TestScene from "./Scenes/TestScene";
+import ErrorWindows from "./Scenes/ErrorWindows";
 // import ParticleScene from "./Scenes/ParticleScene";
 
 // resizeTo(1024   768, 600);
@@ -25,8 +26,10 @@ window.onload = function () {
       pixelRatio:window.devicePixelRatio
   });
   const scene = new TestScene(scenemanager,p);
+  const sceneError = new ErrorWindows(scenemanager)
 
-  scenemanager.addScene(scene);
+  // scenemanager.addScene(scene);
+  scenemanager.addScene(sceneError);
   scenemanager.update();
 
 };

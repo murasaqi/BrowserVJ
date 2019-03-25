@@ -28,6 +28,7 @@ export default class SceneManager{
     key_sceneNext = "ArrowRight";
     key_scenePrev = "ArrowLeft";
     canvasId:string;
+    multiRenderingScene:number[] = [];
     // offScreenTarget:THREE.WebGLRenderTarget;
     isAbsoluteResolution:boolean = false;
     absoluteResolution:THREE.Vector2 = new THREE.Vector2(0,0);
@@ -166,9 +167,19 @@ export default class SceneManager{
         this.timer.setSpeed(value);
     }
 
+    addMultiRenderingScene(scene:BaseScene)
+    {
+        if(this.multiRenderingScene.indexOf(scene.id) != -1) this.multiRenderingScene.push(scene.id);
+    }
+    removeMultiRenderingScene(scene:BaseScene)
+    {
+        const num = this.multiRenderingScene.indexOf(scene.id);
+        if(num > 0) this.multiRenderingScene.splice(num,1)
+    }
     addScene(scene)
     {
         this.scenes.push(scene);
+        scene.id = this.scenes.length-1;
         this.cameraChange();
     }
     onMouseMove =(e)=>
@@ -314,6 +325,10 @@ export default class SceneManager{
         } else {
             this.currentScene.render();
         }
+
+        this.multiRenderingScene.forEach(n =>{
+            if(n != this.sceneNum) this.renderer.render(this.scenes[n].mainScene,this.scenes[n].mainCamera,this.scenes[n].mainTarget)
+        })
     };
 
     //

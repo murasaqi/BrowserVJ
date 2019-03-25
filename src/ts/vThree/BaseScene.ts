@@ -19,7 +19,7 @@ export default class BaseScene {
     sceneManager: SceneManager;
     simplex: Simplex;
     objLoader: THREE.OBJLoader;
-
+    id:number = 0;
     // main mainScene
     mainScene: THREE.Scene;
     mainCamera: THREE.PerspectiveCamera;
@@ -121,6 +121,10 @@ export default class BaseScene {
         return this.sceneManager.absoluteResolution;
     }
 
+    enableMultiRenderingScene()
+    {
+
+    }
 
 
     enableDebug() {

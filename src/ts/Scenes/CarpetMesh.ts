@@ -10,47 +10,15 @@ import SceneManage from "../vThree/SceneManager";
 import PopUpWindowManager from "./PopUpWindowManager";
 import ChildRenderer from "./ChildRenderer";
 import Simplex from "perlin-simplex";
+import RecordPosition from "./RecordPosition"
 
-
-class RecordPosition
-{
-    maxRecordCount = 500;
-    current:THREE.Vector3;
-    record:THREE.Vector3[] = [];
-    constructor(position:THREE.Vector3)
-    {
-
-        for(let i = 0; i < this.maxRecordCount; i++)
-        {
-            this.record.unshift(position.clone());
-        }
-
-        this.current = position;
-
-
-    }
-
-    update(position:THREE.Vector3)
-    {
-        this.current = position;
-        this.record.unshift(this.current.clone());
-
-        // console.log(this.record);
-        if(this.record.length > 100) this.record.pop();
-
-    }
-
-    get lastPosition()
-    {
-        return this.record[this.record.length-1];
-    }
-}
 
 class Row
 {
     positions:THREE.Vector3[] = [];
     debugMeshs:THREE.Mesh[] = [];
     recordPositions:RecordPosition;
+    enableMesh:boolean = false;
     constructor(startPosition:THREE.Vector3)
     {
         this.init(startPosition);
@@ -72,6 +40,13 @@ class Row
 
     }
 
+    clear()
+    {
+        this.recordPositions.clear();
+        this.enableMesh = false;
+
+    }
+
     update(newPosition:THREE.Vector3)
     {
         this.recordPositions.update(new THREE.Vector3(
@@ -81,7 +56,7 @@ class Row
         ));
 
 
-        let delayStep = 16;
+        let delayStep = 14;
 
         for(let i = 0; i < this.debugMeshs.length;i++)
         {
@@ -96,6 +71,11 @@ class Row
                 )
             }
 
+        }
+
+        if(this.recordPositions.record.length >= this.recordPositions.maxRecordCount)
+        {
+            this.enableMesh = true;
         }
 
     }
@@ -118,10 +98,9 @@ export default class CarpetMesh
     startPosition:THREE.Vector3;
     speed:THREE.Vector3;
     tex:THREE.Texture;
+    animationPattern:number = 0;
     constructor(scene, startPosition?:THREE.Vector3,scale?:THREE.Vector3, tex?:THREE.Texture)
     {
-
-
         this.tex= tex;
         this.speed = new THREE.Vector3(
             Math.random() * 0.02 + 0.005,
@@ -136,7 +115,7 @@ export default class CarpetMesh
 
         let xStep = 20*scale.x;
         let zStep = 20*scale.z;
-        let rowCount = 20;
+        let rowCount = 8;
         let zCount = 8;
         var x = this.startPosition.x - ( xStep * (rowCount+1)) / 2;
         var y =this.startPosition.z + ( zStep * (zCount+1)) / 2;
@@ -170,11 +149,13 @@ export default class CarpetMesh
         }
 
 
-        this.planeGeometry = new THREE.PlaneBufferGeometry(8,8,19,7);
+        this.planeGeometry = new THREE.PlaneBufferGeometry(8,8,7,7);
 
         this.planeMat = new THREE.MeshPhongMaterial({color:0xffffff,side:THREE.DoubleSide,map:this.tex});
         this.mesh = new THREE.Mesh(this.planeGeometry,this.planeMat);
 
+
+        this.mesh.rotateOnAxis(new THREE.Vector3(Math.random() * Math.PI*2,0,0).normalize(), Math.random() * 360);
         this.scene.add(this.mesh);
 
 
@@ -193,21 +174,47 @@ export default class CarpetMesh
 
         this.time ++;
 
-        for (let i = 0; i < this.rows.length; i++)
+
+        switch (this.animationPattern)
         {
-            let w =  this.rows[i];
-            let noise = this.simplex.noise3d(
-                w.recordPositions.current.x*0.002 + this.startPosition.x,
-                w.recordPositions.current.y*0.002 + this.startPosition.y,
-                w.recordPositions.current.z*0.002) * 20 + this.startPosition.z;
-            w.update(new THREE.Vector3(
-                Math.cos(this.time * 0.005) * 400,
-                Math.sin(this.time * this.speed.y) * 100 + noise,
-                w.recordPositions.current.z,
-            ));
+            case 0:
+                for (let i = 0; i < this.rows.length; i++)
+                {
+                    let w =  this.rows[i];
+                    let noise = this.simplex.noise3d(
+                        w.recordPositions.current.x*0.002 + this.startPosition.x,
+                        w.recordPositions.current.y*0.002 + this.startPosition.y,
+                        w.recordPositions.current.z*0.002) * 20 + this.startPosition.z;
+                    w.update(new THREE.Vector3(
+                        Math.cos(this.time * 0.005) * 400,
+                        Math.sin(this.time * this.speed.y) * 100 + noise,
+                        w.recordPositions.current.z,
+                    ));
+                }
+
+                break;
+
+
+            case 1:
+                for (let i = 0; i < this.rows.length; i++)
+                {
+                    let w =  this.rows[i];
+                    let noise = this.simplex.noise3d(
+                        w.recordPositions.current.x*0.002 + this.startPosition.x,
+                        w.recordPositions.current.y*0.002 + this.startPosition.y,
+                        w.recordPositions.current.z*0.002) * 20 + this.startPosition.z;
+                    w.update(new THREE.Vector3(
+                        Math.cos(this.time * 0.005) * 400,
+                        Math.sin(this.time * this.speed.y) * 100 + noise,
+                        w.recordPositions.current.z,
+                    ));
+                }
+
+                break;
+
         }
 
-        this.createPlaneMesh();
+        if(this.rows[0].enableMesh)this.createPlaneMesh();
     }
     init()
     {

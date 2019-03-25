@@ -93,7 +93,7 @@ export default class TestScene extends BaseScene {
                     new THREE.Vector3(
                         -300,
                         this.randomValue*30,
-                        this.randomValue*400
+                        this.randomValue*200
                     ),
                     // new THREE.Vector3(Math.random() +0.1,Math.random() +0.1,Math.random() +0.1)
                     new THREE.Vector3(Math.random()*0.5 +0.1,Math.random() +0.2,Math.random()*0.5 +0.1),
