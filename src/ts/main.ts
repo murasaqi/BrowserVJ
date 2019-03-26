@@ -28,7 +28,7 @@ window.onload = function () {
   const scene = new TestScene(scenemanager,p);
   const sceneError = new ErrorWindows(scenemanager)
 
-  // scenemanager.addScene(scene);
+  scenemanager.addScene(scene);
   scenemanager.addScene(sceneError);
   scenemanager.update();
 

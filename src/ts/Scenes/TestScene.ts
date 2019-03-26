@@ -65,10 +65,6 @@ export default class TestScene extends BaseScene {
 
 
 
-
-
-
-
         console.log(gradImage00);
         var light = new THREE.DirectionalLight(0xffffff,1);
 
@@ -171,6 +167,7 @@ export default class TestScene extends BaseScene {
 
 
     update(time: number) {
+
 
         this.frameCount ++;
 

@@ -41,7 +41,6 @@ export default class ErrorWindows extends BaseScene {
     init() {
 
 
-
         this.curlNoise = new CurlNoise();
         this.disableDebug();
 
@@ -121,7 +120,6 @@ export default class ErrorWindows extends BaseScene {
     update(time: number) {
 
         // console.log("update");
-        // this.enableMultiRenderingScene();
 
         this.frameCount ++;
         let p = this.recordPosition.record[0].clone();

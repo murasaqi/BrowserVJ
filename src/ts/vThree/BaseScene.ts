@@ -27,6 +27,7 @@ export default class BaseScene {
 
     outputScene: THREE.Scene;
     outputMesh: THREE.Mesh;
+    enableOffScreenRendering:boolean = true;
 
     // screenPlaneをとる用のカメラ
     orthoCam: THREE.OrthographicCamera;
@@ -121,10 +122,10 @@ export default class BaseScene {
         return this.sceneManager.absoluteResolution;
     }
 
-    enableMultiRenderingScene()
-    {
-
-    }
+    // enableMultiRenderingScene()
+    // {
+    //     this.sceneManager.addMultiRenderingScene(this);
+    // }
 
 
     enableDebug() {
