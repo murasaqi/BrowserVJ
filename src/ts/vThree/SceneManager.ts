@@ -3,8 +3,9 @@ import * as THREE from 'three'
 import "imports-loader?THREE=three!three/examples/js/controls/OrbitControls.js";
 import BaseScene from "./BaseScene";
 import GUI from "./gui/Gui";
-
+import {createRenderTarget, createFullScreenTexturePlane} from "./OffScreenManager";
 import Timer from "./utils/Timer";
+import {OrthographicCamera} from "three";
 
 const offScreenFs = require( "./shaderlibraly/offScreen.fs");
 const offScreenVs = require( "./shaderlibraly/offScreen.vs");
@@ -29,21 +30,28 @@ export default class SceneManager{
     key_scenePrev = "ArrowLeft";
     canvasId:string;
     multiRenderingScene:number[] = [];
+    blendScene:THREE.Scene;
     // offScreenTarget:THREE.WebGLRenderTarget;
     isAbsoluteResolution:boolean = false;
     absoluteResolution:THREE.Vector2 = new THREE.Vector2(0,0);
 
+    blendScreen:THREE.Mesh;
+    blendCamera:THREE.OrthographicCamera;
+    blendTarget:THREE.WebGLRenderTarget;
+    blendUniforms:{};
     offScreenFs:any;
     offScreenVs:any;
     dpr:number;
     constructor(parameter:{canvasId?:string,resolution?:{x:number,y:number},debugCameraMode?:boolean,developMode?:boolean, pixelRatio?:number})
     {
 
+
         this.canvasId =parameter.canvasId ? parameter.canvasId : null;
         this.offScreenFs = offScreenFs;
         this.offScreenVs = offScreenVs;
         this.timer = new Timer();
 
+        this.blendScene = new THREE.Scene();
         if(this.canvasId)
         {
 
@@ -109,6 +117,23 @@ export default class SceneManager{
             this.controls.minDistance = 10;
             this.controls.maxDistance = 1000;
         // }
+
+
+
+
+        this.blendTarget = new THREE.WebGLRenderTarget(window.innerWidth,window.innerHeight,{format:THREE.RGBAFormat});
+
+        this.blendUniforms =  {
+            uTex:{value:null}
+        };
+
+
+
+        this.blendScreen = createFullScreenTexturePlane(this.blendTarget.texture,this.offScreenFs);
+        this.blendCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+        // this.blendCamera.position.set(0,0,1);
+        this.blendScene.add(this.blendScene);
+
     }
 
     init(pixelRatio?:number)
@@ -327,8 +352,21 @@ export default class SceneManager{
         }
 
         this.multiRenderingScene.forEach(n =>{
-            if(n != this.sceneNum) this.renderer.render(this.scenes[n].mainScene,this.scenes[n].mainCamera,this.scenes[n].mainTarget)
-        })
+            if(n != this.sceneNum) {
+                // this.scenes[n].update(this.timer.time);
+                this.scenes[n].update(this.clock.getElapsedTime());
+                this.renderer.render(this.scenes[n].mainScene,this.scenes[n].mainCamera,this.scenes[n].mainTarget)
+            }
+        });
+
+        console.log(this.blendUniforms);
+        //@ts-ignore
+        this.blendUniforms.uTex.value = this.currentScene.mainTarget.texture;
+
+        this.renderer.render(this.blendScene,this.blendCamera);
+
+
+
     };
 
     //

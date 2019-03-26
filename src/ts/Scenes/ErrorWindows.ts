@@ -41,6 +41,7 @@ export default class ErrorWindows extends BaseScene {
     init() {
 
 
+
         this.curlNoise = new CurlNoise();
         this.disableDebug();
 
@@ -118,6 +119,10 @@ export default class ErrorWindows extends BaseScene {
 
 
     update(time: number) {
+
+        // console.log("update");
+        // this.enableMultiRenderingScene();
+
         this.frameCount ++;
         let p = this.recordPosition.record[0].clone();
 
@@ -155,7 +160,8 @@ export default class ErrorWindows extends BaseScene {
         // this.renderer.autoClear = false;
         this.renderer.setClearAlpha(1);
         this.renderer.setClearColor(0x018282);
-        if(this.frameCount % 3)this.renderer.render(this.mainScene,this.mainCamera);
+        if(this.frameCount % 3)this.renderer.render(this.mainScene,this.mainCamera,this.mainTarget);
+        // this.render2Canvas(this.mainTarget.texture);
         // this.renderer.autoClear = true;
     }
 

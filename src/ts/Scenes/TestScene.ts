@@ -185,7 +185,7 @@ export default class TestScene extends BaseScene {
         //@ts-ignore
         // this.resultPlane.material.map = this.target.texture;
         if(this.frameCount % 10 == 0)this.childRenderes.forEach(w=>w.render());
-        this.renderer.render(this.resultScene,this.resultCamera);
+        this.renderer.render(this.resultScene,this.resultCamera,this.mainTarget);
         // this.render2Target()
         // this.renderer.render(this.mainScene,this.mainCamera);
     }
