@@ -46,6 +46,6 @@
     "perlin-simplex": "^0.0.3",
     "sharp": "^0.21.3",
     "simplex-noise": "^2.4.0",
-    "three": "0.101.1"
+    "three": "^0.101.1"
   }
 }

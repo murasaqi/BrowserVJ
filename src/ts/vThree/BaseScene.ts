@@ -60,7 +60,7 @@ export default class BaseScene {
         this.mainScene = new THREE.Scene();
         this.mainCamera = new THREE.PerspectiveCamera(50, this.screenSize.x / this.screenSize.y, 0.1, 10000);
         this.mainCamera.position.set(0, 0, 10);
-        this.mainTarget = createRenderTarget(this.screenSize.x, this.screenSize.y);
+        this.mainTarget = createRenderTarget(window.innerWidth,window.innerHeight);
 
 
         //debug
@@ -176,7 +176,7 @@ export default class BaseScene {
 
     // 第四引数指定layerのIDを指定できる、省略でシーン内のオブジェクトを全て描画
     render2Target(scene:THREE.Scene, cam: THREE.Camera, target: THREE.WebGLRenderTarget, layerNum: LayerIds = LayerIds.ALL) : THREE.Texture {
-        this.renderer.clearTarget(target, true, true, true);
+        this.renderer.setRenderTarget(target);
         this.renderer.setClearColor(new THREE.Color(0,0,0), 0);
 
         cam.layers.set(layerNum);
@@ -195,6 +195,7 @@ export default class BaseScene {
     render() {
         // 一番最後になんかしらのターゲットにrender2Targetで書いたものが画面に映ります。
 
+
         if(!this.useOffScreen) this.sceneManager.renderer.render(this.mainScene,this.mainCamera);
     }
 
@@ -207,6 +208,7 @@ export default class BaseScene {
     texture2Target(tex: THREE.Texture, target:THREE.WebGLRenderTarget) {
         // @ts-ignore
         this.outputMesh.material.uniforms.uTex.value = tex;
+        this.renderer.setRenderTarget(target);
         this.renderer.render(this.outputScene, this.orthoCam, target);
     }
 

@@ -41,6 +41,7 @@ export default class ErrorWindows extends BaseScene {
     init() {
 
 
+        this.enableOffScreenRendering = true;
         this.curlNoise = new CurlNoise();
         this.disableDebug();
 
@@ -49,9 +50,9 @@ export default class ErrorWindows extends BaseScene {
         this.initPostScene();
 
         this.material = new THREE.MeshBasicMaterial({color:0xffffff,map:Base64ToTexture(tex)});
-        var geo = new THREE.PlaneBufferGeometry(294 ,140,1,1);
+        var geo = new THREE.PlaneBufferGeometry(294*0.8 ,140*0.8,1,1);
 
-        for(let i = 0; i < 8; i++)
+        for(let i = 0; i < 32; i++)
         {
             var m = new THREE.Mesh(geo,this.material);
             this.meshs.push(m);
@@ -62,7 +63,7 @@ export default class ErrorWindows extends BaseScene {
         this.recordPosition = new RecordPosition(new THREE.Vector3(0,0,0));
         this.recordPosition.update(new THREE.Vector3(
             Math.random() * 500 -250,
-            Math.random() * 500 -250,
+            Math.random() * 300 -150,
             0
         ))
 
@@ -124,7 +125,7 @@ export default class ErrorWindows extends BaseScene {
         this.frameCount ++;
         let p = this.recordPosition.record[0].clone();
 
-        var x = Math.cos(time) * 500 * (this.simplex.noise(time*0.1,0)+0.5);
+        var x = Math.cos(time) * 800 * (this.simplex.noise(time*0.1,0)+0.5);
         var y = Math.sin(time) * 400 * (this.simplex.noise(0,time*0.1)+0.8);
 
 
@@ -138,12 +139,12 @@ export default class ErrorWindows extends BaseScene {
             0
         ));
 
-        this.recordPosition.maxRecordCount = 200;
+        this.recordPosition.maxRecordCount = 300;
         if(this.recordPosition.record.length >= this.recordPosition.maxRecordCount)
         {
             for (let i = 0; i < this.meshs.length; i++)
             {
-                let pos = this.recordPosition.record[i * 20];
+                let pos = this.recordPosition.record[i * 8];
                 this.meshs[i].position.set(
                     pos.x,
                     pos.y,
@@ -155,10 +156,15 @@ export default class ErrorWindows extends BaseScene {
 
     render() {
 
+
         // this.renderer.autoClear = false;
-        this.renderer.setClearAlpha(1);
-        this.renderer.setClearColor(0x018282);
-        if(this.frameCount % 3)this.renderer.render(this.mainScene,this.mainCamera,this.mainTarget);
+        // this.renderer.setClearAlpha(0);
+        // this.renderer.setClearColor/);
+
+        if(this.frameCount % 3){
+            this.renderer.setRenderTarget(this.mainTarget);
+            this.renderer.render(this.mainScene,this.mainCamera,this.mainTarget);
+        }
         // this.render2Canvas(this.mainTarget.texture);
         // this.renderer.autoClear = true;
     }

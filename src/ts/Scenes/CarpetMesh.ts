@@ -103,7 +103,7 @@ export default class CarpetMesh
     {
         this.tex= tex;
         this.speed = new THREE.Vector3(
-            Math.random() * 0.02 + 0.005,
+            Math.random() * 0.02 + 0.015,
             Math.random() * 0.01 + 0.005,
             Math.random() * 0.01 + 0.005,
         )
@@ -155,7 +155,7 @@ export default class CarpetMesh
         this.mesh = new THREE.Mesh(this.planeGeometry,this.planeMat);
 
 
-        this.mesh.rotateOnAxis(new THREE.Vector3(Math.random() * Math.PI*2,0,0).normalize(), Math.random() * 360);
+        this.mesh.rotateOnAxis(new THREE.Vector3(Math.random() * Math.PI*2,Math.random() * Math.PI,0).normalize(), Math.random() * 360);
         this.scene.add(this.mesh);
 
 
@@ -186,7 +186,7 @@ export default class CarpetMesh
                         w.recordPositions.current.y*0.002 + this.startPosition.y,
                         w.recordPositions.current.z*0.002) * 20 + this.startPosition.z;
                     w.update(new THREE.Vector3(
-                        Math.cos(this.time * 0.005) * 400,
+                        Math.cos(this.time * 0.005) * 300,
                         Math.sin(this.time * this.speed.y) * 100 + noise,
                         w.recordPositions.current.z,
                     ));
@@ -255,7 +255,7 @@ export default class CarpetMesh
 
         let step = this.rows.length;
         //@ts-ignore
-        let vertices = this.planeGeometry.attributes.position.array;
+        let vertices:any = this.planeGeometry.attributes.position.array;
         //@ts-ignore
         this.planeGeometry.dynamic = true;
         // console.log/(vertices);

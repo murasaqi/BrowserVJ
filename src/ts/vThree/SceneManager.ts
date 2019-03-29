@@ -6,6 +6,7 @@ import GUI from "./gui/Gui";
 import {createRenderTarget, createFullScreenTexturePlane} from "./OffScreenManager";
 import Timer from "./utils/Timer";
 import {OrthographicCamera} from "three";
+import UIElements from "../Scenes/UIElements";
 
 const offScreenFs = require( "./shaderlibraly/offScreen.fs");
 const blendFs = require("./shaderlibraly/blend.fs.glsl");
@@ -22,6 +23,7 @@ export default class SceneManager{
     developMode:boolean;
     frameCount:number;
     scenes:BaseScene[];
+    bgScenes:BaseScene[] = [];
     sceneNum:number;
     controls:THREE.OrbitControls = null;
     canvas:any;
@@ -39,12 +41,18 @@ export default class SceneManager{
     blendScreen:THREE.Mesh;
     blendCamera:THREE.OrthographicCamera;
     blendTarget:THREE.WebGLRenderTarget;
-    blendUniforms:{};
+    blendUniforms:any;
     offScreenFs:any;
     offScreenVs:any;
     dpr:number;
+
+
+    bgRenderTarget:THREE.WebGLRenderTarget;
+
+    uiElements:UIElements;
     constructor(parameter:{canvasId?:string,resolution?:{x:number,y:number},debugCameraMode?:boolean,developMode?:boolean, pixelRatio?:number})
     {
+
 
 
         this.canvasId =parameter.canvasId ? parameter.canvasId : null;
@@ -98,7 +106,7 @@ export default class SceneManager{
         this.developMode = parameter.developMode ? parameter.developMode : false;
         this.activeCamera = null;
         this.frameCount = 0;
-        if(this.developMode)this.gui = new GUI(this);
+        // if(this.developMode)this.gui = new GUI(this);
         this.scenes = [];
         this.sceneNum = 0;
         this.clock = new THREE.Clock();
@@ -107,6 +115,8 @@ export default class SceneManager{
         const pixelRatio = parameter.pixelRatio ? parameter.pixelRatio : null;
         this.dpr = parameter.pixelRatio;
         this.init(pixelRatio);
+
+        this.bgRenderTarget= new THREE.WebGLRenderTarget(window.innerWidth,window.innerHeight);
 
 
         // if(parameter.debugCameraMode)
@@ -129,6 +139,7 @@ export default class SceneManager{
         this.blendUniforms = {
             tex0: { type: "t", value: null },
             tex1:{value:null},
+            blendNum:{value:0}
         };
         const mat = new THREE.ShaderMaterial({
             uniforms:this.blendUniforms,
@@ -144,6 +155,9 @@ export default class SceneManager{
         this.blendCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
         // this.blendCamera.position.set(0,0,1);
         this.blendScene.add(this.blendScreen);
+
+
+        this.uiElements = new UIElements();
 
     }
 
@@ -169,7 +183,7 @@ export default class SceneManager{
 
     setAbsoluteResolution(width:number, height:number)
     {
-        let dpr = this.renderer.getPixelRatio();
+        let dpr = 1;
         console.log(`dpr: ${dpr}`);
         this.absoluteResolution.set(width * dpr,height * dpr);
         this.debugCamera.aspect = this.absoluteResolution.x / this.absoluteResolution.y;
@@ -205,7 +219,7 @@ export default class SceneManager{
 
     addMultiRenderingScene(scene:BaseScene)
     {
-        console.log(this.multiRenderingScene.indexOf(scene.id));
+        // console.log(this.multiRenderingScene.indexOf(scene.id));
         if(this.multiRenderingScene.indexOf(scene.id) == -1) this.multiRenderingScene.push(scene.id);
     }
     removeMultiRenderingScene(scene:BaseScene)
@@ -218,7 +232,16 @@ export default class SceneManager{
         this.scenes.push(scene);
         scene.id = this.scenes.length-1;
         console.log(scene.id);
+        this.sceneNum = this.scenes.length-1;
         this.cameraChange();
+    }
+
+
+    addbgScene(scene)
+    {
+        this.bgScenes.push(scene);
+        console.log(this.bgScenes.length);
+
     }
     onMouseMove =(e)=>
     {
@@ -361,25 +384,55 @@ export default class SceneManager{
             if(this.controls != null)this.controls.update();
             this.renderer.render(this.currentScene.mainScene, this.debugCamera);
         } else {
-            // this.currentScene.render();
+            // this.scenes.forEach(n =>{
+            //     if(n.enableOffScreenRendering) {
+            //         // this.scenes[n].update(this.timer.time);
+            //         n.update(this.clock.getElapsedTime());
+            //         n.render();
+            //
+            //         // this.renderer.render(n.mainScene,n.mainCamera,n.mainTarget)
+            //     }
+            // });
+
+            // console.log(this.multiRenderingScene);
+            this.bgScenes[this.uiElements.getBgOption()].update(this.clock.getElapsedTime());
+
+            this.bgScenes[this.uiElements.getBgOption()].render();
+
+
+            //@ts-ignore
+            this.blendUniforms.tex0.value = this.bgScenes[this.uiElements.getBgOption()].mainTarget.texture;
+
+
+            this.scenes[this.uiElements.getLeftOption()].update(this.clock.getElapsedTime());
+            this.scenes[this.uiElements.getLeftOption()].render();
+            //@ts-ignore
+            this.blendUniforms.tex1.value = this.scenes[this.uiElements.getLeftOption()].mainTarget.texture;
+
+
+            this.renderer.setRenderTarget(this.bgRenderTarget);
+            this.blendUniforms.blendNum.value = this.uiElements.getBlend01();
+            this.renderer.render(this.blendScene,this.blendCamera,this.bgRenderTarget);
+
+
+
+            //@ts-ignore
+            this.blendUniforms.tex0.value = this.bgRenderTarget.texture;
+
+
+            this.scenes[this.uiElements.getRightOption()].update(this.clock.getElapsedTime());
+            this.scenes[this.uiElements.getRightOption()].render()
+            //@ts-ignore
+            this.blendUniforms.tex1.value = this.scenes[this.uiElements.getRightOption()].mainTarget.texture;
+
+            this.blendUniforms.blendNum.value = this.uiElements.getBlend02();
+            this.renderer.render(this.blendScene,this.blendCamera);
+
+
+
         }
 
-        this.scenes.forEach(n =>{
-            if(n.enableOffScreenRendering) {
-                // this.scenes[n].update(this.timer.time);
-                n.update(this.clock.getElapsedTime());
-                this.renderer.render(n.mainScene,n.mainCamera,n.mainTarget)
-            }
-        });
 
-        console.log(this.multiRenderingScene);
-        //@ts-ignore
-        this.blendUniforms.tex0.value = this.scenes[0].mainTarget.texture;
-
-        //@ts-ignore
-        this.blendUniforms.tex1.value = this.scenes[1].mainTarget.texture;
-
-        this.renderer.render(this.blendScene,this.blendCamera);
 
 
 

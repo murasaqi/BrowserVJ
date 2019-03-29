@@ -14,6 +14,11 @@ import CarpetMesh from "./CarpetMesh";
 
 
 const gradImage00 = require("../imgs/grad00.jpg");
+const windowImage01 = require("../imgs/window01.png");
+const windowImage02 = require("../imgs/window02.png");
+const windowImage03 = require("../imgs/window03.png");
+const windowImage04 = require("../imgs/window04.png");
+const windowImage05 = require("../imgs/window05.png");
 
 export default class TestScene extends BaseScene {
 
@@ -28,7 +33,7 @@ export default class TestScene extends BaseScene {
     resultPlane:THREE.Mesh;
     carpetMeshs:CarpetMesh[] = [];
 
-
+    windowImages = [];
     grad:THREE.Texture;
     constructor(sceneManger: SceneManage, popUpManager:PopUpWindowManager) {
         super(sceneManger);
@@ -62,6 +67,14 @@ export default class TestScene extends BaseScene {
     init() {
 
 
+        this.disableDebug();
+        this.enableOffScreenRendering = true;
+
+        this.windowImages.push(windowImage01);
+        this.windowImages.push(windowImage02);
+        this.windowImages.push(windowImage03);
+        this.windowImages.push(windowImage04);
+        this.windowImages.push(windowImage05);
 
 
 
@@ -74,18 +87,20 @@ export default class TestScene extends BaseScene {
         this.mainScene.add(new THREE.AmbientLight(0xffffff,0.5));
         // this.mainCamera.aspect = window.innerWidth/window.innerHeight;
 
-        this.mainCamera.position.set(0,50,GetCameraDistanceWithWidthSize(this.mainCamera,1024));
+        this.mainCamera.position.set(0,120,GetCameraDistanceWithWidthSize(this.mainCamera,1024));
+        this.mainCamera.position.set(200,0,100);
         this.mainCamera.lookAt(new THREE.Vector3(0,0,0));
         this.initPostScene();
 
         const loader = new THREE.TextureLoader();
 
 
-        this.grad = loader.load("./529d55251b98dae3a508f995409467bf.jpg",()=>{
-
-            for (let i = 0; i < 5; i++)
+        //
+            for (let i = 0; i < this.windowImages.length+4; i++)
             {
-                this.carpetMeshs.push(new CarpetMesh(this.mainScene,
+                this.grad = loader.load(this.windowImages[i % this.windowImages.length],(v)=>{
+
+                    this.carpetMeshs.push(new CarpetMesh(this.mainScene,
                     new THREE.Vector3(
                         -300,
                         this.randomValue*30,
@@ -93,14 +108,14 @@ export default class TestScene extends BaseScene {
                     ),
                     // new THREE.Vector3(Math.random() +0.1,Math.random() +0.1,Math.random() +0.1)
                     new THREE.Vector3(Math.random()*0.5 +0.1,Math.random() +0.2,Math.random()*0.5 +0.1),
-                    this.grad
+                    v
                 ))
 
                 // this.carpetMeshs[this.carpetMeshs.length-1].mesh.setRotationFromAxisAngle(new THREE.Vector3(this.randomValue,this.randomValue,this.randomValue).normalize(),this.randomValue * 360);
-
+                });
             }
 
-        });
+
 
 
 
@@ -178,11 +193,15 @@ export default class TestScene extends BaseScene {
     }
 
     render() {
-        this.renderer.render(this.mainScene,this.mainCamera,this.target);
+        // this.renderer.render(this.mainScene,this.mainCamera,this.target);
         //@ts-ignore
         // this.resultPlane.material.map = this.target.texture;
+        // this.renderer.setClearAlpha(1);
+        // this.renderer.setClearColor(0x018282);
+        this.renderer.setRenderTarget(this.mainTarget, true, true, true);
         if(this.frameCount % 10 == 0)this.childRenderes.forEach(w=>w.render());
-        this.renderer.render(this.resultScene,this.resultCamera,this.mainTarget);
+        this.renderer.render(this.mainScene,this.mainCamera,this.mainTarget);
+        this.renderer.setClearAlpha(0);
         // this.render2Target()
         // this.renderer.render(this.mainScene,this.mainCamera);
     }
