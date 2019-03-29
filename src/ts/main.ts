@@ -61,6 +61,7 @@ window.onload = function () {
     scenemanager.addbgScene(milo);
     scenemanager.addbgScene(bg01);
     scenemanager.addbgScene(bg02);
+    scenemanager.addbgScene(message);
   scenemanager.update();
 
 };
