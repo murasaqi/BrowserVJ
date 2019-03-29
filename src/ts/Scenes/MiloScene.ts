@@ -151,7 +151,7 @@ export default class MiloScene extends BaseScene {
         if(this.materialShader)this.materialShader.uniforms.time.value = time % 3 < 1.5 ? 0 : Math.PI/2.;
         if(this.mesh)
         {
-            this.mesh.rotateOnAxis(new THREE.Vector3(0,1,0).normalize(), time*0.0005);
+            this.mesh.rotateOnAxis(new THREE.Vector3(0,1,0).normalize(), time*0.01 % 360);
         }
     }
 

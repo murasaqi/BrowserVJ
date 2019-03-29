@@ -60,9 +60,6 @@ export default class UIElements
         this.blendNum02 = new Selecter(this.blendNum);
 
 
-
-
-
         document.body.appendChild(this.wrapper);
         this.wrapper.appendChild(this.layer0.selecter);
         this.wrapper.appendChild(this.layer1.selecter);

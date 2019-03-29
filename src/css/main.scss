@@ -32,7 +32,7 @@ body {
   height: 500px;
   position: absolute;
   z-index: 999;
-  background-color: rgba(255,255,255,0.5);
+  background-color: rgba(255,255,255,0);
   top: 0;
   left: 0;
   right: 0;
@@ -44,6 +44,7 @@ body {
 select
 {
   width:200px;
+  background: #ffffff;
 }
 option
 {
