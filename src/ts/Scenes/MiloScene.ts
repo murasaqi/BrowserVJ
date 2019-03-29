@@ -78,10 +78,10 @@ export default class MiloScene extends BaseScene {
             //@ts-ignore
             this.mesh = obj.children[0];
 
-
-            this.mesh.translateY(-1);
-            obj.scale.setScalar(50);
+            // this.mesh.translateY(-1);
+            obj.scale.setScalar(20);
             this.mainScene.add(obj);
+
         });
 
     }
@@ -134,6 +134,19 @@ export default class MiloScene extends BaseScene {
 
         // this.wireGround.uniforms.uTime.value = time;
 
+
+        const radius = 50+ Math.sin(time) * 20;
+        this.mainCamera.position.set(
+            Math.cos(time*0.1) * radius,
+            Math.sin(time * 0.5) * 20 + 40,
+            Math.sin(time*0.1) * radius
+        );
+
+        this.mainCamera.lookAt(
+            Math.cos(time*0.6) *10,
+            Math.sin(time*0.4) *10 + 10,
+            Math.cos(time*0.8) *10
+            );
 
         if(this.materialShader)this.materialShader.uniforms.time.value = time % 3 < 1.5 ? 0 : Math.PI/2.;
         if(this.mesh)

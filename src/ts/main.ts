@@ -24,7 +24,7 @@ window.onload = function () {
   const p = new PopupWindowManager();
 
   //@ts-ignore
-    window.worldResolution = new THREE.Vector2(1920,1080);
+    window.worldResolution = new THREE.Vector2(window.innerWidth,window.innerHeight);
   const scenemanager = new SceneManager({
       debugCameraMode:true,
       developMode:true,
@@ -47,16 +47,17 @@ window.onload = function () {
   scenemanager.addScene(iconsScene);
   scenemanager.addScene(vaperwave);
   scenemanager.addScene(milo);
-  scenemanager.addbgScene(bg02);
+  scenemanager.addScene(bg01);
+  scenemanager.addScene(bg02);
 
-  scenemanager.addbgScene(bg01);
-  scenemanager.addbgScene(iconsScene);
-  scenemanager.addbgScene(bg02);
-  scenemanager.addbgScene(vaperwave);
-  scenemanager.addbgScene(sceneError);
-  scenemanager.addbgScene(wireScene);
-  scenemanager.addbgScene(iconsScene);
-  scenemanager.addbgScene(milo);
+    scenemanager.addbgScene(scene);
+    scenemanager.addbgScene(sceneError);
+    scenemanager.addbgScene(wireScene);
+    scenemanager.addbgScene(iconsScene);
+    scenemanager.addbgScene(vaperwave);
+    scenemanager.addbgScene(milo);
+    scenemanager.addbgScene(bg01);
+    scenemanager.addbgScene(bg02);
   scenemanager.update();
 
 };
