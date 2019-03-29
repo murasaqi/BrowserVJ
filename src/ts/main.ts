@@ -46,11 +46,17 @@ window.onload = function () {
   scenemanager.addScene(wireScene);
   scenemanager.addScene(iconsScene);
   scenemanager.addScene(vaperwave);
-  scenemanager.addScene(milo)
+  scenemanager.addScene(milo);
+  scenemanager.addbgScene(bg02);
 
   scenemanager.addbgScene(bg01);
   scenemanager.addbgScene(iconsScene);
   scenemanager.addbgScene(bg02);
+  scenemanager.addbgScene(vaperwave);
+  scenemanager.addbgScene(sceneError);
+  scenemanager.addbgScene(wireScene);
+  scenemanager.addbgScene(iconsScene);
+  scenemanager.addbgScene(milo);
   scenemanager.update();
 
 };

@@ -44,8 +44,8 @@ export default class UIElements
     bgLayer:Selecter;
     blendNum01:Selecter;
     blendNum02:Selecter;
-    sceneNum:number = 4;
-    bgSceneNum:number = 3;
+    sceneNum:number = 7;
+    bgSceneNum:number = 8;
     hide:boolean = true;
 
     blendNum = 7;
