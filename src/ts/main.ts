@@ -15,6 +15,7 @@ import IConWave from "./Scenes/iConWave";
 import Bg02 from "./Scenes/Bg02";
 import VaperWave from "./Scenes/VaperWave";
 import MiloScene from "./Scenes/MiloScene";
+import ErrorMessage from "./Scenes/ErrorMessage";
 // import ParticleScene from "./Scenes/ParticleScene";
 
 // resizeTo(1024   768, 600);
@@ -37,6 +38,7 @@ window.onload = function () {
   const iconsScene = new IConWave(scenemanager);
   const vaperwave = new VaperWave(scenemanager);
   const milo = new MiloScene(scenemanager);
+  const message = new ErrorMessage(scenemanager);
 
   const bg01 = new BgGradientScene(scenemanager);
   const bg02 = new Bg02(scenemanager);
@@ -49,6 +51,7 @@ window.onload = function () {
   scenemanager.addScene(milo);
   scenemanager.addScene(bg01);
   scenemanager.addScene(bg02);
+  scenemanager.addScene(message);
 
     scenemanager.addbgScene(scene);
     scenemanager.addbgScene(sceneError);
@@ -58,6 +61,7 @@ window.onload = function () {
     scenemanager.addbgScene(milo);
     scenemanager.addbgScene(bg01);
     scenemanager.addbgScene(bg02);
+    scenemanager.addbgScene(message);
   scenemanager.update();
 
 };
