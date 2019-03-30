@@ -144,14 +144,14 @@ export default class MiloScene extends BaseScene {
 
         this.mainCamera.lookAt(
             Math.cos(time*0.6) *10,
-            Math.sin(time*0.4) *10 + 10,
+            Math.sin(time*0.4) *10 + 20,
             Math.cos(time*0.8) *10
             );
 
         if(this.materialShader)this.materialShader.uniforms.time.value = time % 3 < 1.5 ? 0 : Math.PI/2.;
         if(this.mesh)
         {
-            this.mesh.rotateOnAxis(new THREE.Vector3(0,1,0).normalize(), time*0.01);
+            this.mesh.rotateY(this.simplex.noise(time*0.4,0.4) < 0.5 ? 0.03 : -0.03);
         }
     }
 
